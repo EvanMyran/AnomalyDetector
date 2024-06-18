@@ -38,12 +38,14 @@ class Config:
 class MissingEnvironmentVariable(Exception):
     """
     Exception to be thrown when a required environment variable is not set.
+    Need to check if data structure fits what model is ready to process.
     """
 
     pass
 
 
 # Read environment variables:
+# Get from Azure Portal
 apikey = os.getenv("ANOMALY_DETECTOR_API_KEY")
 endpoint = os.getenv("ANOMALY_DETECTOR_ENDPOINT")
 
@@ -202,11 +204,13 @@ def _get_value(t):
 
 def _get_timestamp(t):
     """
-    Generates a fake timestamp
-    """
+    Generates a fake timestamp.
+    Need to have the timestamp set at top of code
+    
     timestamp = datetime.datetime(2015, 1, 1, tzinfo=timezone.utc) + timedelta(
         minutes=Config.minute_resample * t
     )
+    """
     return timestamp, timestamp.isoformat().split("+")[0] + "Z"
 
 
@@ -221,6 +225,7 @@ def _call_ad_api(t):
     for i in range(Config.window_size):
         request["series"].append({"value": values[i], "timestamp": timestamps[i]})
 
+    # MAKE SURE GRANULARITY IS SET TO THE SPECIFICTY OF TIME SERIES DATA
     request["granularity"] = "minutely"
     request["maxAnomalyRatio"] = max_anomaly_ratio.value
     request["sensitivity"] = sensitivity.value
@@ -242,8 +247,11 @@ def _call_ad_api(t):
         f"Point: {str(t)}: Is anomaly? {response['is_anomaly']} -- Expected value: {response['expected_value']}"
     )
 
-    upperband = response["expected_value"] + response["upper_margin"]
-    lowerband = response["expected_value"] - response["lower_margin"]
+    # Set upper and lower bounds
+    # Defines an anomaly
+    # Currently bound for celsius in time series data, 10 - 21.1 celsisus is bounds
+    upperband = response["expected_value"] + response["21.1"] # response["upper_margin"]
+    lowerband = response["expected_value"] - response["10"] # response["lower_margin"]
 
     if response["is_anomaly"]:
         color = "red"
