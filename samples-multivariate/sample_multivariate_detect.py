@@ -10,6 +10,8 @@ DESCRIPTION:
 Prerequisites:
      * The Anomaly Detector client library for Python
      * A valid data feed
+     * Anomaly Detector python client
+     * Start time and end time for training the model
 
 USAGE:
     python sample_multivariate_detect.py
