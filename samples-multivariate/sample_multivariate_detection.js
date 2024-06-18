@@ -3,8 +3,17 @@
 
 /**
  * Demonstrates how to train a model on multivariate data and use this model to detect anomalies.
+ *
+ * Needs:
+ * Anomaly Detector JavaScript client
+ * Azure key credential
+ * API key
+ * set processing endpoint
+ * edit start and end time for model training - in local time not data source time
+ * edit how you want to export the model - currently set as multivariate_model.zip
  */
 
+// Set client and API keys
 const { AnomalyDetectorClient } = require("@azure/ai-anomaly-detector");
 const { AzureKeyCredential } = require("@azure/core-auth");
 const fs = require("fs");
@@ -102,7 +111,7 @@ async function main() {
 
     // export the model
     const export_result = await client.exportModel(model_id);
-    const model_path = "model.zip"
+    const model_path = "multivariate_model.zip"
     const destination = fs.createWriteStream(model_path);
     export_result.readableStreamBody?.pipe(destination);
     console.log("New model has been exported to " + model_path + ".");
